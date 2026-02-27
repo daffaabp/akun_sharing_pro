@@ -4,6 +4,9 @@ import { Prisma } from "@prisma/client";
 import { getEmailById } from "@/app/actions/emails";
 import { ChevronLeft, Mail, Lock, Calendar, CheckCircle2, Clock, XCircle } from "lucide-react";
 
+// Prevent static pre-rendering at build time (requires DB access)
+export const dynamic = "force-dynamic";
+
 // Infer the return type of the getEmailById function's pool include
 type EmailPool = Prisma.PoolGetPayload<{
     include: {

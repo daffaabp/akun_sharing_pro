@@ -6,6 +6,9 @@ import { SeatsTable } from "@/components/pools/seats-table";
 import { AddMemberDialog } from "@/components/pools/add-member-dialog";
 import { ActivateButton } from "@/components/pools/activate-button";
 
+// Prevent static pre-rendering at build time (requires DB access)
+export const dynamic = "force-dynamic";
+
 interface Props {
     params: { id: string };
 }
