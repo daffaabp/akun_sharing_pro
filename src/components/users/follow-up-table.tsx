@@ -2,7 +2,20 @@
 
 import { MessageCircle } from "lucide-react";
 
-type FollowUp = any; // Will use inferred type from action, but use any for simplicity here
+type FollowUp = {
+    id: string;
+    pool: {
+        endDate: Date | string | null;
+        masterEmail: string | null;
+        service: {
+            name: string;
+        };
+    };
+    member: {
+        name: string;
+        phone: string | null;
+    };
+};
 
 function formatPhone(phone: string | null) {
     if (!phone) return null;
@@ -41,7 +54,7 @@ export function FollowUpTable({ followUps }: { followUps: FollowUp[] }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {followUps.map((seat: any) => {
+                        {followUps.map((seat) => {
                             const today = new Date();
                             today.setHours(0, 0, 0, 0);
                             const endDate = new Date(seat.pool.endDate!);

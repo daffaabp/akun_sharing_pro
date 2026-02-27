@@ -5,6 +5,7 @@ import { MembersTable } from "./members-table";
 import { cn } from "@/lib/utils";
 import { FollowUpTable } from "./follow-up-table";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function UsersClientView({ members, pools, followUps }: { members: any, pools: any, followUps: any }) {
     const [tab, setTab] = useState<"followup" | "all">("followup");
 

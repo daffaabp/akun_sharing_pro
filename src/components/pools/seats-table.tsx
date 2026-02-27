@@ -57,7 +57,7 @@ function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string 
             try {
                 await updateMemberPhoneInline(member.id, parsedData, poolId);
                 toast.success("Phone number formatted & saved");
-            } catch (error) {
+            } catch {
                 toast.error("Failed to update phone number");
                 setPhone(member.phone || "");
             } finally {
