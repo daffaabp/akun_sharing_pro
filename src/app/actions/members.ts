@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { formatWhatsAppNumber } from "@/lib/utils";
 
 // ─── Fetch all members (admin view, with pool seat count) ──────────────────────
 export async function getAllMembers() {
@@ -50,7 +51,7 @@ export async function createMember(data: {
     const record = await db.member.create({
         data: {
             name: data.name,
-            phone: data.phone ?? null,
+            phone: formatWhatsAppNumber(data.phone) ?? null,
             email: data.email ?? null,
         }
     });
@@ -63,6 +64,9 @@ export async function updateMember(
     id: string,
     data: { name?: string; phone?: string; email?: string | null }
 ) {
+    if (data.phone !== undefined) {
+        data.phone = formatWhatsAppNumber(data.phone) || "";
+    }
     const record = await db.member.update({ where: { id }, data });
     revalidatePath("/users");
     return record;
@@ -96,5 +100,45 @@ export async function getOpenPools() {
             service: { select: { name: true } },
         },
         orderBy: { name: "asc" },
+    });
+}
+
+// ─── Update member phone inline ───────────────────────────────────────────────
+export async function updateMemberPhoneInline(memberId: string, phone: string | null, poolId: string) {
+    const record = await db.member.update({
+        where: { id: memberId },
+        data: { phone },
+    });
+    revalidatePath(`/pools/${poolId}`);
+    return record;
+}
+
+// ─── Fetch follow-up seats (H-1 or overdue in ACTIVE pools) ───────────────────
+export async function getFollowUpSeats() {
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    return db.poolSeat.findMany({
+        where: {
+            pool: {
+                status: "ACTIVE",
+                endDate: {
+                    lte: endOfToday
+                }
+            }
+        },
+        include: {
+            member: true,
+            pool: {
+                include: {
+                    service: true
+                }
+            }
+        },
+        orderBy: {
+            pool: {
+                endDate: "asc"
+            }
+        }
     });
 }

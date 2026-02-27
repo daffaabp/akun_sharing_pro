@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { formatWhatsAppNumber } from "@/lib/utils";
 
 import { Prisma } from "@prisma/client";
 
@@ -178,7 +179,7 @@ export async function addMemberToPool(
         member = await db.member.create({
             data: {
                 name: data.name,
-                phone: data.phone ?? null,
+                phone: formatWhatsAppNumber(data.phone) ?? null,
                 email: data.email ?? null
             }
         });
@@ -238,7 +239,16 @@ export async function getActivePools() {
 // ─── Admin: Edit a Pool ───────────────────────────────────────────────────────
 export async function editPool(
     id: string,
-    data: { targetSeats: number; status?: string; notes?: string | null }
+    data: {
+        targetSeats: number;
+        status?: string;
+        notes?: string | null;
+        masterEmail?: string | null;
+        password?: string | null;
+        planType?: string | null;
+        startDate?: Date | null;
+        endDate?: Date | null;
+    }
 ) {
     const pool = await db.pool.findUnique({
         where: { id },
@@ -256,6 +266,11 @@ export async function editPool(
             targetSeats: data.targetSeats,
             status: data.status,
             notes: data.notes,
+            masterEmail: data.masterEmail,
+            password: data.password,
+            planType: data.planType,
+            startDate: data.startDate,
+            endDate: data.endDate,
         },
     });
 

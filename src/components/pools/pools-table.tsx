@@ -163,6 +163,7 @@ export function PoolsTable({ pools, emails = [] }: PoolsTableProps) {
                     pool={editingPool}
                     open={!!editingPool}
                     onClose={() => setEditingPool(null)}
+                    emails={emails}
                 />
             )}
         </div>

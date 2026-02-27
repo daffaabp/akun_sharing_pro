@@ -54,7 +54,7 @@ export default async function PoolDetailPage({ params }: Props) {
                     </div>
 
                     <div className="bg-card shadow-sm rounded-xl border border-border overflow-hidden">
-                        <SeatsTable seats={pool.seats} />
+                        <SeatsTable seats={pool.seats} poolId={pool.id} />
                     </div>
                 </div>
             </main>

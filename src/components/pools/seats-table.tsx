@@ -2,17 +2,20 @@
 
 import { useState, useTransition } from "react";
 import { updateSeatPayment, removeSeat } from "@/app/actions/pools";
+import { updateMemberPhoneInline } from "@/app/actions/members";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatWhatsAppNumber } from "@/lib/utils";
 
 type Seat = {
     id: string;
     paymentStatus: string;
     joinedAt: Date | string;
     notes: string | null;
-    member: { name: string; phone: string | null; email: string | null };
+    member: { id: string; name: string; phone: string | null; email: string | null };
 };
 
 const PAYMENT_BADGE: Record<string, React.ReactNode> = {
@@ -33,7 +36,73 @@ const PAYMENT_BADGE: Record<string, React.ReactNode> = {
     ),
 };
 
-export function SeatsTable({ seats }: { seats: Seat[] }) {
+function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string }) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [phone, setPhone] = useState(member?.phone || "");
+    const [pending, startTransition] = useTransition();
+
+    if (!member) return <span className="text-muted-foreground italic font-sans">No phone</span>;
+
+    async function handleSave() {
+        const parsedData = formatWhatsAppNumber(phone);
+        // revert kalau tidak ada perubahan sama sekali secara core string
+        if (parsedData === (member.phone || "")) {
+            setIsEditing(false);
+            setPhone(member.phone || "");
+            return;
+        }
+
+        // kalau sedang loading api
+        startTransition(async () => {
+            try {
+                await updateMemberPhoneInline(member.id, parsedData, poolId);
+                toast.success("Phone number formatted & saved");
+            } catch (error) {
+                toast.error("Failed to update phone number");
+                setPhone(member.phone || "");
+            } finally {
+                setIsEditing(false);
+            }
+        });
+    }
+
+    if (isEditing) {
+        return (
+            <div className="flex items-center gap-2">
+                <Input 
+                    autoFocus
+                    value={phone}
+                    onChange={e => setPhone(e.target.value)}
+                    onBlur={handleSave}
+                    onKeyDown={e => {
+                        if (e.key === "Enter") handleSave();
+                        if (e.key === "Escape") { setPhone(member.phone || ""); setIsEditing(false); }
+                    }}
+                    disabled={pending}
+                    className="h-8 max-w-[150px] text-xs font-mono"
+                    placeholder="e.g. 0812 / +62..."
+                />
+            </div>
+        )
+    }
+
+    return (
+        <div 
+            onClick={() => setIsEditing(true)} 
+            className="cursor-text max-w-fit px-2 py-1 -ml-2 rounded hover:bg-muted/80 transition-colors group relative"
+            title="Click to edit phone"
+        >
+            {member.phone ? (
+                <span className="font-mono text-foreground">{member.phone}</span>
+            ) : (
+                <span className="text-muted-foreground italic font-sans">No phone</span>
+            )}
+            <span className="absolute -right-6 top-1.5 opacity-0 group-hover:opacity-100 text-primary text-[10px] font-medium tracking-wide">EDIT</span>
+        </div>
+    );
+}
+
+export function SeatsTable({ seats, poolId }: { seats: Seat[]; poolId: string }) {
     const [pending, startTransition] = useTransition();
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -132,12 +201,8 @@ export function SeatsTable({ seats }: { seats: Seat[] }) {
                                     )}
                                 </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-foreground">
-                                {seat.member?.phone ? (
-                                    seat.member.phone
-                                ) : (
-                                    <span className="text-muted-foreground italic font-sans">No phone</span>
-                                )}
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                                <PhoneCell member={seat.member} poolId={poolId} />
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <button
@@ -152,7 +217,7 @@ export function SeatsTable({ seats }: { seats: Seat[] }) {
                                 </button>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground hidden md:table-cell">
-                                {new Date(seat.joinedAt).toLocaleDateString()}
+                                {new Date(seat.joinedAt).toLocaleDateString("en-GB")}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-right">
                                 <Button
