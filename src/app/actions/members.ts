@@ -128,6 +128,7 @@ export async function getFollowUpSeats() {
 
     return db.poolSeat.findMany({
         where: {
+            status: "ACTIVE", // Hanya tampilkan yang belum diproses (ACTIVE)
             pool: {
                 status: "ACTIVE",
                 endDate: {
@@ -149,4 +150,45 @@ export async function getFollowUpSeats() {
             }
         }
     });
+}
+
+// ─── Process Follow Up Actions ────────────────────────────────────────────────
+export async function processFollowUpCancel(seatId: string) {
+    const record = await db.poolSeat.update({
+        where: { id: seatId },
+        data: { status: "CANCELED" }
+    });
+    revalidatePath("/users");
+    return record;
+}
+
+export async function processFollowUpRenew(
+    oldSeatId: string,
+    memberId: string,
+    newPoolId: string,
+    paymentStatus: string,
+    notes: string | null
+) {
+    // 1. Mark old seat as renewed
+    await db.poolSeat.update({
+        where: { id: oldSeatId },
+        data: { status: "RENEWED" }
+    });
+
+    // 2. Create new seat in the chosen OPEN/READY pool
+    const newRecord = await db.poolSeat.create({
+        data: {
+            memberId,
+            poolId: newPoolId,
+            paymentStatus,
+            notes
+        }
+    });
+
+    // 3. Trigger cascade ui refresh
+    revalidatePath("/users");
+    revalidatePath("/pools");
+    revalidatePath(`/pools/${newPoolId}`);
+
+    return newRecord;
 }

@@ -132,9 +132,23 @@ export async function activatePool(
         planType?: string;
     }
 ) {
-    const pool = await db.pool.findUnique({ where: { id: poolId } });
+    const pool = await db.pool.findUnique({ where: { id: poolId }, include: { service: true } });
     if (!pool) throw new Error("Pool not found.");
     if (pool.status !== "READY") throw new Error("Pool must be READY before activation.");
+
+    // [ANTI-OVERCHARGE RANJAU]
+    // Cek apakah masterEmail ini pernah di Banned di service ini sebelumnya
+    const bannedHistory = await db.pool.findFirst({
+        where: {
+            serviceId: pool.serviceId,
+            masterEmail: subscriptionData.masterEmail,
+            status: "BANNED"
+        }
+    });
+
+    if (bannedHistory) {
+        throw new Error(`PERINGATAN RANJAU: Email ${subscriptionData.masterEmail} telah DIBLOKIR/BANNED untuk layanan ${pool.service.name} karena kasus tagihan sebelumnya. Silakan gunakan email lain!`);
+    }
 
     // Link it directly to the pool and set ACTIVE
     const updatedPool = await db.pool.update({
@@ -260,6 +274,23 @@ export async function editPool(
         throw new Error(`Cannot set target seats to ${data.targetSeats}. The pool already has ${pool.seats.length} members.`);
     }
 
+    if (data.masterEmail) {
+        // [ANTI-OVERCHARGE RANJAU]
+        const bannedHistory = await db.pool.findFirst({
+            where: {
+                serviceId: pool.serviceId,
+                masterEmail: data.masterEmail,
+                status: "BANNED",
+                // Make sure we are not finding ourselves if we're already BANNED
+                id: { not: pool.id }
+            }
+        });
+
+        if (bannedHistory) {
+            throw new Error(`PERINGATAN RANJAU: Email ${data.masterEmail} telah DIBLOKIR/BANNED untuk layanan ini sebelumnya. Silakan gunakan email lain!`);
+        }
+    }
+
     const updatedPool = await db.pool.update({
         where: { id },
         data: {
@@ -302,4 +333,17 @@ export async function deletePool(id: string) {
     revalidatePath("/users");
 
     return deletedPool;
+}
+
+// ─── Admin: Mark Pool as BANNED ───────────────────────────────────────────────
+export async function markPoolAsBanned(id: string) {
+    const updatedPool = await db.pool.update({
+        where: { id },
+        data: { status: "BANNED" }
+    });
+
+    revalidatePath("/pools");
+    revalidatePath(`/pools/${id}`);
+
+    return updatedPool;
 }

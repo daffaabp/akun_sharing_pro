@@ -5,10 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ActivatePoolDialog } from "./activate-pool-dialog";
 import { EditPoolDialog } from "./edit-pool-dialog";
-import { deletePool } from "@/app/actions/pools";
+import { deletePool, markPoolAsBanned } from "@/app/actions/pools";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, Ban } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Service = { id: string; name: string; category?: string };
@@ -33,6 +33,7 @@ const STATUS_BADGE: Record<string, React.ReactNode> = {
     OPEN: <Badge className="bg-blue-500 hover:bg-blue-600">Open</Badge>,
     READY: <Badge className="bg-yellow-500 hover:bg-yellow-600 text-white">Ready</Badge>,
     ACTIVE: <Badge className="bg-green-500 hover:bg-green-600">Active</Badge>,
+    BANNED: <Badge variant="destructive" className="bg-rose-600">Banned</Badge>,
 };
 
 interface PoolsTableProps {
@@ -59,6 +60,18 @@ export function PoolsTable({ pools, emails = [] }: PoolsTableProps) {
             router.refresh();
         } catch (error: unknown) {
             toast.error(error instanceof Error ? error.message : "Failed to delete pool");
+        }
+    }
+
+    async function handleBanned(pool: Pool) {
+        if (!confirm(`Tanda BANNED pada ${pool.name} [${pool.service.name}]?\n\nIni akan merubah status grup ini menjadi akun bermasalah (Tagihan berlebih), sehingga sistem akan MEMBLOKIR email master grup ini agar tidak bisa dibelanjakan lagi untuk service ${pool.service.name} di masa depan.`)) return;
+
+        try {
+            await markPoolAsBanned(pool.id);
+            toast.success("Grup berhasil diblokir (BANNED).");
+            router.refresh();
+        } catch (error: unknown) {
+            toast.error(error instanceof Error ? error.message : "Gagal memblokir grup");
         }
     }
 
@@ -140,6 +153,17 @@ export function PoolsTable({ pools, emails = [] }: PoolsTableProps) {
                                             >
                                                 <Trash2 className="size-[18px]" />
                                             </button>
+                                            
+                                            {/* Button to Mark as Banned */}
+                                            {pool.masterEmail && pool.status !== "BANNED" && (
+                                                <button
+                                                    onClick={() => handleBanned(pool)}
+                                                    className="p-1.5 ml-1 text-rose-500 hover:text-white transition-colors hover:bg-rose-600 rounded-md bg-rose-50"
+                                                    title="Blokir Email Grup Ini (Kena Charge)"
+                                                >
+                                                    <Ban className="size-[16px] stroke-[2.5]" />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

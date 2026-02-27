@@ -1,6 +1,14 @@
 "use client";
 
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, X, ListPlus, XCircle } from "lucide-react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
+import { processFollowUpCancel, processFollowUpRenew } from "@/app/actions/members";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 
 type FollowUp = {
     id: string;
@@ -12,6 +20,7 @@ type FollowUp = {
         };
     };
     member: {
+        id: string; // added member id
         name: string;
         phone: string | null;
     };
@@ -26,7 +35,8 @@ function formatPhone(phone: string | null) {
     return cleaned;
 }
 
-export function FollowUpTable({ followUps }: { followUps: FollowUp[] }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function FollowUpTable({ followUps, pools }: { followUps: FollowUp[], pools: any[] }) {
     if (followUps.length === 0) {
         return (
             <div className="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-sm">
@@ -145,6 +155,8 @@ export function FollowUpTable({ followUps }: { followUps: FollowUp[] }) {
                                                 <MessageCircle className="w-4 h-4" />
                                                 Tagih (WA)
                                             </a>
+
+                                            <FollowUpActionButtons seat={seat} pools={pools} />
                                         </div>
                                     </td>
                                 </tr>
@@ -156,3 +168,135 @@ export function FollowUpTable({ followUps }: { followUps: FollowUp[] }) {
         </div>
     );
 }
+
+function FollowUpActionButtons({ seat, pools }: { seat: FollowUp, pools: any[] }) {
+    const [isPending, startTransition] = useTransition();
+    const [openRenew, setOpenRenew] = useState(false);
+    const [openCancel, setOpenCancel] = useState(false);
+
+    // Form states for Renew
+    const [poolId, setPoolId] = useState("");
+    const [paymentStatus, setPaymentStatus] = useState("PENDING");
+    const [notes, setNotes] = useState("");
+
+    const handleCancel = () => {
+        startTransition(async () => {
+            try {
+                await processFollowUpCancel(seat.id);
+                toast.success("Catatan dihapus (berhenti).");
+                setOpenCancel(false);
+            } catch (error) {
+                toast.error("Gagal menghapus antrean");
+            }
+        });
+    };
+
+    const handleRenew = () => {
+        if (!poolId) {
+            toast.error("Pilih pool (kloter) tujuan!");
+            return;
+        }
+        startTransition(async () => {
+            try {
+                await processFollowUpRenew(seat.id, seat.member.id, poolId, paymentStatus, notes);
+                toast.success("Berhasil didata & dipindah antrean!");
+                setOpenRenew(false);
+            } catch (error) {
+                toast.error("Gagal memproses perpanjangan");
+            }
+        });
+    };
+
+    return (
+        <div className="flex items-center gap-1.5 ml-2 border-l pl-3 border-slate-200">
+            {/* RENEW BUTTON */}
+            <Dialog open={openRenew} onOpenChange={setOpenRenew}>
+                <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-[34px] bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 shadow-sm" title="Perpanjang & Pindah Ke Kloter">
+                        <ListPlus className="w-4 h-4 mr-1.5" />
+                        Perpanjang
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Perpanjang Akun ({seat.member.name})</DialogTitle>
+                        <DialogDescription>
+                            Pindahkan langganan ini ke kloter (Pool) berikutnya.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                            <Label>Kloter Tujuan (Berstatus OPEN)</Label>
+                            <Select value={poolId} onValueChange={setPoolId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Pilih pool antrean..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {pools.length === 0 && <SelectItem value="none" disabled>Tidak ada pool tersedia.</SelectItem>}
+                                    {pools.map(p => (
+                                        <SelectItem key={p.id} value={p.id}>
+                                            {p.name} ({p.service.name})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Status Pembayaran</Label>
+                            <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="PAID">Sudah Lunas (PAID)</SelectItem>
+                                    <SelectItem value="PENDING">Belum Bayar (PENDING)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Tambahkan Catatan Pendek</Label>
+                            <Textarea 
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                                placeholder="Contoh: Janji transfer awal bulan depan..." 
+                                className="resize-none"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setOpenRenew(false)}>Batal</Button>
+                        <Button onClick={handleRenew} disabled={isPending || !poolId}>
+                            {isPending ? "Memproses..." : "Simpan & Pindahkan"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* CANCEL BUTTON */}
+            <Dialog open={openCancel} onOpenChange={setOpenCancel}>
+                <DialogTrigger asChild>
+                    <Button variant="outline" size="icon" className="h-[34px] w-[34px] bg-rose-50 hover:bg-rose-100 text-rose-600 border-rose-200 shadow-sm" title="Berhenti (Coret dari daftar)">
+                        <XCircle className="w-4 h-4" />
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Coret Pelanggan</DialogTitle>
+                        <DialogDescription>
+                            Anda yakin pelanggan <b>{seat.member.name}</b> memilih berhenti / tidak perpanjang? 
+                            Aksi ini akan menghapus {seat.member.name} dari layar "Antrean Tagihan".
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-4">
+                        <Button variant="ghost" onClick={() => setOpenCancel(false)}>Kembali</Button>
+                        <Button variant="destructive" onClick={handleCancel} disabled={isPending}>
+                            {isPending ? "Memproses..." : "Ya, Berhenti"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </div>
+    );
+}
+
+

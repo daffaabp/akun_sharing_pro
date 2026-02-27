@@ -38,7 +38,7 @@ export function UsersClientView({ members, pools, followUps }: { members: any, p
             </div>
 
             <div className="mt-4">
-                {tab === "followup" && <FollowUpTable followUps={followUps} />}
+                {tab === "followup" && <FollowUpTable followUps={followUps} pools={pools} />}
                 {tab === "all" && <MembersTable members={members} pools={pools} />}
             </div>
         </div>
