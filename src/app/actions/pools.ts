@@ -23,9 +23,27 @@ export async function getAllPools(searchParams?: {
     overdue?: string;
     notes?: string;
     sort?: string;
+    month?: string;
+    year?: string;
 }) {
     const where: Prisma.PoolWhereInput = {};
     const orderBy: Prisma.PoolOrderByWithRelationInput = {};
+
+    // 1.1 Month and Year filter logic
+    if (searchParams?.month && searchParams?.month !== "all" && searchParams?.year) {
+        const monthNum = parseInt(searchParams.month, 10);
+        const yearNum = parseInt(searchParams.year, 10);
+        if (!isNaN(monthNum) && !isNaN(yearNum)) {
+            // JS Date uses 0-indexed months
+            const startDate = new Date(yearNum, monthNum - 1, 1);
+            // Gets the 1st day of the next month
+            const endDate = new Date(yearNum, monthNum, 1);
+            where.createdAt = {
+                gte: startDate,
+                lt: endDate
+            };
+        }
+    }
 
     // 1.2 Overdue logic
     if (searchParams?.overdue === "soon") {

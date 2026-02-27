@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { PoolsTable } from "@/components/pools/pools-table";
 import { CreatePoolDialog } from "@/components/pools/create-pool-dialog";
 import { PoolFilters } from "@/components/pools/pool-filters";
+import { ExportExcelButton } from "@/components/pools/export-excel-button";
 import { Suspense } from "react";
 
 // Prevent static pre-rendering at build time (requires DB access)
@@ -12,7 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function PoolsPage({
     searchParams,
 }: {
-    searchParams: { overdue?: string; notes?: string; sort?: string };
+    searchParams: { overdue?: string; notes?: string; sort?: string; month?: string; year?: string; };
 }) {
     let pools: Awaited<ReturnType<typeof getAllPools>> = [];
     let services: { id: string; name: string }[] = [];
@@ -41,6 +42,7 @@ export default async function PoolsPage({
                     <Suspense fallback={<div className="h-10 w-24 bg-muted animate-pulse rounded-md" />}>
                         <PoolFilters />
                     </Suspense>
+                    <ExportExcelButton pools={pools} />
                     <CreatePoolDialog services={services} />
                 </div>
             </div>
