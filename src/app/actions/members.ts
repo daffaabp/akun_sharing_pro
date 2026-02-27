@@ -115,15 +115,23 @@ export async function updateMemberPhoneInline(memberId: string, phone: string | 
 
 // ─── Fetch follow-up seats (H-1 or overdue in ACTIVE pools) ───────────────────
 export async function getFollowUpSeats() {
-    const endOfToday = new Date();
+    // Stabilkan konsep "Hari Ini" memaksa ke Zona Waktu Jakarta (WIB/UTC+7)
+    // Mencegah isu Vercel (yang server-nya berlokasi di UTC+0 Eropa/US)
+    const todayStrInWIB = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+    const endOfToday = new Date(todayStrInWIB);
     endOfToday.setHours(23, 59, 59, 999);
+
+    // Konversi balikan ke UTC agar query Prisma Date akurat dan seimbang
+    // Mengingat server Vercel memperlakukan fungsi setHours() terhadap local UTC mereka.
+    const utcTimings = endOfToday.getTime() - (endOfToday.getTimezoneOffset() * 60000);
+    const finalDateLimit = new Date(utcTimings);
 
     return db.poolSeat.findMany({
         where: {
             pool: {
                 status: "ACTIVE",
                 endDate: {
-                    lte: endOfToday
+                    lte: finalDateLimit
                 }
             }
         },

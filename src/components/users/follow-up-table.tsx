@@ -55,13 +55,17 @@ export function FollowUpTable({ followUps }: { followUps: FollowUp[] }) {
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {followUps.map((seat) => {
-                            const today = new Date();
+                            // Hitung secara paten berdasar jam Asia/Jakarta biar sinkron dengan backend vercel maupun browser Client.
+                            const nowStr = new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+                            const today = new Date(nowStr);
                             today.setHours(0, 0, 0, 0);
+
                             const endDate = new Date(seat.pool.endDate!);
-                            const endDateMidnight = new Date(endDate);
-                            endDateMidnight.setHours(0, 0, 0, 0);
-                            
-                            const diffTime = endDateMidnight.getTime() - today.getTime();
+                            const endStr = endDate.toLocaleString("en-US", { timeZone: "Asia/Jakarta" });
+                            const targetDate = new Date(endStr);
+                            targetDate.setHours(0, 0, 0, 0);
+
+                            const diffTime = targetDate.getTime() - today.getTime();
                             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                             
                             let urgencyText = "";
