@@ -2,6 +2,9 @@ import { getAllMembers, getOpenPools } from "@/app/actions/members";
 import { MembersTable } from "@/components/users/members-table";
 import { AddMemberButton } from "@/components/users/add-member-button";
 
+// Prevent static pre-rendering at build time (requires DB access)
+export const dynamic = "force-dynamic";
+
 export default async function UsersPage() {
     let members = [] as Awaited<ReturnType<typeof getAllMembers>>;
     let pools = [] as Awaited<ReturnType<typeof getOpenPools>>;

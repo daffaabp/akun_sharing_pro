@@ -6,6 +6,9 @@ import { CreatePoolDialog } from "@/components/pools/create-pool-dialog";
 import { PoolFilters } from "@/components/pools/pool-filters";
 import { Suspense } from "react";
 
+// Prevent static pre-rendering at build time (requires DB access)
+export const dynamic = "force-dynamic";
+
 export default async function PoolsPage({
     searchParams,
 }: {

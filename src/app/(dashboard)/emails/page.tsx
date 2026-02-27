@@ -2,6 +2,9 @@ import { getAllEmails } from "@/app/actions/emails";
 import { AddEmailButton } from "@/components/emails/add-email-button";
 import { EmailsTable } from "@/components/emails/emails-table";
 
+// Prevent static pre-rendering at build time (requires DB access)
+export const dynamic = "force-dynamic";
+
 export default async function EmailsPage() {
     let emails: Awaited<ReturnType<typeof getAllEmails>> = [];
     try {

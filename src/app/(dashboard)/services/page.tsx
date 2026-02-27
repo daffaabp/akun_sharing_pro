@@ -2,6 +2,9 @@ import { getAllServices } from "@/app/actions/services";
 import { AddServiceButton } from "@/components/services/add-service-button";
 import { ServicesTable } from "@/components/services/services-table";
 
+// Prevent static pre-rendering at build time (requires DB access)
+export const dynamic = "force-dynamic";
+
 export default async function ServicesPage() {
     let services: Awaited<ReturnType<typeof getAllServices>> = [];
     try {
