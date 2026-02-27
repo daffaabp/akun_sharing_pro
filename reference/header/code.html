@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Account Sharing Pro - Header Variant 2</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0d7ff2",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen flex">
+    <aside class="hidden lg:flex w-64 flex-col border-r border-white/10 bg-[#12171e] pt-6 pb-6">
+        <div class="px-6 flex items-center gap-3 mb-8">
+            <div
+                class="relative flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-blue-400">
+                <span class="material-symbols-outlined text-white" style="font-size: 20px;">hub</span>
+            </div>
+            <h1 class="text-lg font-bold tracking-tight text-white">Account<span class="text-primary">Pro</span></h1>
+        </div>
+        <nav class="flex-1 px-4 space-y-1">
+            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-white bg-white/10 rounded-lg" href="#">
+                <span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                href="#">
+                <span class="material-symbols-outlined text-[20px]">group</span>
+                My Groups
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                href="#">
+                <span class="material-symbols-outlined text-[20px]">folder_shared</span>
+                Shared Accounts
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                href="#">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                Activity
+            </a>
+        </nav>
+    </aside>
+    <div class="relative flex w-full flex-col overflow-hidden">
+        <header
+            class="w-full border-b border-white/10 bg-[#151b23] dark:bg-[#151b23] backdrop-blur-md sticky top-0 z-50">
+            <div class="w-full px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button class="lg:hidden text-slate-400 hover:text-white">
+                            <span class="material-symbols-outlined">menu</span>
+                        </button>
+                        <nav class="flex items-center text-sm font-medium text-slate-400">
+                            <span class="hover:text-slate-200 cursor-pointer transition-colors">Dashboard</span>
+                            <span class="mx-2 text-slate-600">/</span>
+                            <span class="text-white">Overview</span>
+                        </nav>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button
+                            class="flex size-9 items-center justify-center rounded-full text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-[20px]">help</span>
+                        </button>
+                        <button
+                            class="relative flex size-9 items-center justify-center rounded-full text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-[20px]">notifications</span>
+                            <span
+                                class="absolute right-2 top-2 size-1.5 rounded-full bg-primary ring-2 ring-[#151b23]"></span>
+                        </button>
+                        <div class="mx-2 h-4 w-px bg-white/10"></div>
+                        <button
+                            class="group flex items-center gap-2 rounded-full py-1 pl-1 pr-1 hover:bg-white/5 transition-all">
+                            <div class="relative">
+                                <img alt="Profile"
+                                    class="size-8 rounded-full bg-slate-700 object-cover ring-2 ring-transparent group-hover:ring-white/10 transition-all"
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuAppdnB0-pQu3N98Pfi0jw-5WAz0zM2M3Ju41DgNHYfVXCnUDWG63cDPayGkz_3A6FrboCWQCQ2LjcWf-k7tWKkSmBm3ji2zn33zcN5Mm8pxean4J6VW57jPo4VtQxYkBgmnxxqjA1vlz6pLGL09hf1PPmg6fYsHyaRn5ann4PS8hlVOx5AXY9_ng_bmbnQcUFcXu2LSr53tSypWM1xVkAnMM-m1ad75audQiYtzEKg6MwqLVmOaxebEkg0KWlIIL2YP4w2bfR1FGQT" />
+                                <div
+                                    class="absolute bottom-0 right-0 size-2 rounded-full bg-emerald-500 ring-1.5 ring-[#151b23]">
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1 px-6 py-8 lg:px-8 w-full">
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+                <div
+                    class="rounded-xl bg-[#1c242d] border border-white/5 p-8 h-64 flex flex-col justify-center items-center text-center shadow-lg">
+                    <div class="mb-4 rounded-full bg-primary/10 p-4 text-primary">
+                        <span class="material-symbols-outlined text-[32px]">group_add</span>
+                    </div>
+                    <h3 class="text-lg font-medium text-white">New Groups</h3>
+                    <p class="mt-2 text-sm text-slate-400">Create a new sharing circle.</p>
+                </div>
+                <div
+                    class="rounded-xl bg-[#1c242d] border border-white/5 p-8 h-64 flex flex-col justify-center items-center text-center shadow-lg md:col-span-2 relative overflow-hidden group">
+                    <div
+                        class="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                    </div>
+                    <h3 class="text-xl font-medium text-white mb-2">Recent Activity</h3>
+                    <p class="text-slate-400">No recent activity found on your shared accounts.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+</body>
+
+</html>

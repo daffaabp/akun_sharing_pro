@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Member ──────────────────────────────────────────────────────────────────
+// A person who subscribes to shared services through a Pool.
+model Member {
+  id            String     @id @default(cuid())
+  name          String
+  phone         String?             // Optional contact identifier (WhatsApp/phone)
+  email         String?             // Optional
+  createdAt     DateTime   @default(now())
+
+  seats         PoolSeat[]
+}
+
+// ─── Email ───────────────────────────────────────────────────────────────────
+// A master account email used to purchase shared subscriptions.
+model Email {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?  // Gmail/account password stored for team reference
+  status    String   @default("active")  // active | paused | disabled
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Service ─────────────────────────────────────────────────────────────────
+// A software service (e.g. Cursor, ChatGPT). Pools are created per service.
+model Service {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  category    String
+  description String?
+  url         String?
+  status      String   @default("active") // active | inactive | maintenance
+  createdAt   DateTime @default(now())
+
+  pools       Pool[]
+}
+
+// ─── Pool ─────────────────────────────────────────────────────────────────────
+// A "waiting room" that gathers members before a subscription is purchased.
+// Status lifecycle: OPEN → READY → ACTIVE
+model Pool {
+  id           String   @id @default(cuid())
+  name         String
+
+  serviceId    String
+  service      Service  @relation(fields: [serviceId], references: [id])
+
+  targetSeats  Int      @default(5)
+  status       String   @default("OPEN") // OPEN | READY | ACTIVE
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  seats        PoolSeat[]
+
+  // --- Inline Subscription Fields ---
+  // A pool acts as its own subscription once activated
+  masterEmail  String?
+  password     String?
+  startDate    DateTime?
+  endDate      DateTime?
+  planType     String?
+
+  // --- Admin Notes ---
+  notes        String?   // Freeform admin memo (e.g. "Get charged $20")
+}
+
+// ─── PoolSeat ─────────────────────────────────────────────────────────────────
+// Represents a Member claiming a spot in a Pool.
+model PoolSeat {
+  id            String   @id @default(cuid())
+
+  poolId        String
+  pool          Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
+
+  memberId      String
+  member        Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  status        String   @default("ACTIVE")   // ACTIVE | REVOKED
+  paymentStatus String   @default("PENDING")  // PENDING | PAID | REFUNDED
+  joinedAt      DateTime @default(now())
+  notes         String?
+
+  @@unique([poolId, memberId])
+}
+
