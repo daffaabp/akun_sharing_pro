@@ -26,8 +26,8 @@ export async function getDashboardStats() {
     });
 
     // 2. Layanan yg Paling Diminati (Hitung jumlah kolam/seat unik?)
-    // Cukup count seat di tiap service
-    const serviceLabels = await db.service.findMany({ select: { name: true, _count: { select: { pools: true } } } });
+    // Cukup count seat di tiap service (Hanya query database jika memang diperlukan di return, saat ini belum dipakai tetapi logic disiapkan)
+    // const serviceLabels = await db.service.findMany({ select: { name: true, _count: { select: { pools: true } } } });
 
     // 3. Data Bulanan untuk Chart Recharts
     const sixMonths = getLast6Months();
@@ -51,7 +51,8 @@ export async function getDashboardStats() {
     const serviceNames = services.map(s => s.name);
 
     const chartData = sixMonths.map(m => {
-        const dataPoint: any = { name: m.name };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dataPoint: Record<string, any> = { name: m.name };
         // Default nol untuk tiap service
         serviceNames.forEach(sn => dataPoint[sn] = 0);
         return { ...m, dataPoint, serviceNames };

@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageCircle, X, ListPlus, XCircle } from "lucide-react";
+import { MessageCircle, XCircle, ListPlus } from "lucide-react";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { processFollowUpCancel, processFollowUpRenew } from "@/app/actions/members";
@@ -169,6 +169,7 @@ export function FollowUpTable({ followUps, pools }: { followUps: FollowUp[], poo
     );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FollowUpActionButtons({ seat, pools }: { seat: FollowUp, pools: any[] }) {
     const [isPending, startTransition] = useTransition();
     const [openRenew, setOpenRenew] = useState(false);
@@ -185,7 +186,7 @@ function FollowUpActionButtons({ seat, pools }: { seat: FollowUp, pools: any[] }
                 await processFollowUpCancel(seat.id);
                 toast.success("Catatan dihapus (berhenti).");
                 setOpenCancel(false);
-            } catch (error) {
+            } catch {
                 toast.error("Gagal menghapus antrean");
             }
         });
@@ -201,7 +202,7 @@ function FollowUpActionButtons({ seat, pools }: { seat: FollowUp, pools: any[] }
                 await processFollowUpRenew(seat.id, seat.member.id, poolId, paymentStatus, notes);
                 toast.success("Berhasil didata & dipindah antrean!");
                 setOpenRenew(false);
-            } catch (error) {
+            } catch {
                 toast.error("Gagal memproses perpanjangan");
             }
         });
@@ -284,7 +285,7 @@ function FollowUpActionButtons({ seat, pools }: { seat: FollowUp, pools: any[] }
                         <DialogTitle>Coret Pelanggan</DialogTitle>
                         <DialogDescription>
                             Anda yakin pelanggan <b>{seat.member.name}</b> memilih berhenti / tidak perpanjang? 
-                            Aksi ini akan menghapus {seat.member.name} dari layar "Antrean Tagihan".
+                            Aksi ini akan menghapus {seat.member.name} dari layar &quot;Antrean Tagihan&quot;.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="mt-4">
