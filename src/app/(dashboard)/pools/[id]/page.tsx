@@ -10,6 +10,11 @@ import { ActivateButton } from "@/components/pools/activate-button";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+// Return empty array so Next.js skips pre-rendering during build (avoids DB access at build time)
+export async function generateStaticParams() {
+    return [];
+}
+
 interface Props {
     params: { id: string };
 }
