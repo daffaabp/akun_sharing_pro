@@ -16,12 +16,13 @@ export async function generateStaticParams() {
 }
 
 interface Props {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function PoolDetailPage({ params }: Props) {
+    const resolvedParams = await params;
     const [pool, emails] = await Promise.all([
-        getPoolById(params.id),
+        getPoolById(resolvedParams.id),
         getEmails(),
     ]);
     if (!pool) notFound();

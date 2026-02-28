@@ -37,8 +37,9 @@ function fmt(date: Date | string) {
     return new Date(date).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 }
 
-export default async function EmailDetailPage({ params }: { params: { id: string } }) {
-    const result = await getEmailById(params.id);
+export default async function EmailDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    const result = await getEmailById(resolvedParams.id);
     if (!result) notFound();
 
     const { email, pools } = result;

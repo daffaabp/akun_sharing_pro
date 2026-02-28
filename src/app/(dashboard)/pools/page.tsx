@@ -14,15 +14,16 @@ export const revalidate = 0;
 export default async function PoolsPage({
     searchParams,
 }: {
-    searchParams: { overdue?: string; notes?: string; sort?: string; month?: string; year?: string; };
+    searchParams: Promise<{ overdue?: string; notes?: string; sort?: string; month?: string; year?: string; }>;
 }) {
+    const resolvedSearchParams = await searchParams;
     let pools: Awaited<ReturnType<typeof getAllPools>> = [];
     let services: { id: string; name: string }[] = [];
     let emails: Awaited<ReturnType<typeof getEmails>> = [];
 
     try {
         [pools, services, emails] = await Promise.all([
-            getAllPools(searchParams),
+            getAllPools(resolvedSearchParams),
             db.service.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } }),
             getEmails(),
         ]);
