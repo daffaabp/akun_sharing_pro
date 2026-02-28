@@ -1,9 +1,9 @@
 import { getAllPools } from "@/app/actions/pools";
 import { getEmails } from "@/app/actions/emails";
 import { db } from "@/lib/db";
-import { PoolsTable } from "@/components/pools/pools-table";
-import { CreatePoolDialog } from "@/components/pools/create-pool-dialog";
 import { PoolFilters } from "@/components/pools/pool-filters";
+import { PoolsViewManager } from "@/components/pools/pools-view-manager";
+import { CreatePoolDialog } from "@/components/pools/create-pool-dialog";
 import { ExportExcelButton } from "@/components/pools/export-excel-button";
 import { Suspense } from "react";
 
@@ -47,7 +47,7 @@ export default async function PoolsPage({
                     <CreatePoolDialog services={services} />
                 </div>
             </div>
-            <PoolsTable pools={pools} emails={emails} />
+            <PoolsViewManager pools={pools} emails={emails} />
         </div>
     );
 }
