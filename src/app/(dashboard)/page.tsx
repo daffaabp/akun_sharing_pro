@@ -3,6 +3,7 @@ import { OverviewChart } from "@/components/dashboard/overview-chart";
 import { Users, LayoutGrid, Layers, TrendingUp } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function DashboardHomePage() {
     const stats = await getDashboardStats();

@@ -36,7 +36,7 @@ const PAYMENT_BADGE: Record<string, React.ReactNode> = {
     ),
 };
 
-function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string }) {
+function PhoneCell({ member }: { member: Seat["member"] }) {
     const [isEditing, setIsEditing] = useState(false);
     const [phone, setPhone] = useState(member?.phone || "");
     const [pending, startTransition] = useTransition();
@@ -55,7 +55,7 @@ function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string 
         // kalau sedang loading api
         startTransition(async () => {
             try {
-                await updateMemberPhoneInline(member.id, parsedData, poolId);
+                await updateMemberPhoneInline(member.id, parsedData);
                 toast.success("Phone number formatted & saved");
             } catch {
                 toast.error("Failed to update phone number");
@@ -102,7 +102,7 @@ function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string 
     );
 }
 
-export function SeatsTable({ seats, poolId }: { seats: Seat[]; poolId: string }) {
+export function SeatsTable({ seats }: { seats: Seat[]; poolId: string }) {
     const [pending, startTransition] = useTransition();
     const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -202,7 +202,7 @@ export function SeatsTable({ seats, poolId }: { seats: Seat[]; poolId: string })
                                 </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                                <PhoneCell member={seat.member} poolId={poolId} />
+                                <PhoneCell member={seat.member} />
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                                 <button

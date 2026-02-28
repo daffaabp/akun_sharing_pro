@@ -6,6 +6,7 @@ import { ChevronLeft, Mail, Lock, Calendar, CheckCircle2, Clock, XCircle } from 
 
 // Prevent static pre-rendering at build time (requires DB access)
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // Infer the return type of the getEmailById function's pool include
 type EmailPool = Prisma.PoolGetPayload<{

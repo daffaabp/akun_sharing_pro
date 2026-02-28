@@ -8,6 +8,7 @@ import { ActivateButton } from "@/components/pools/activate-button";
 
 // Prevent static pre-rendering at build time (requires DB access)
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 interface Props {
     params: { id: string };

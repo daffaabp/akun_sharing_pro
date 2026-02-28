@@ -46,8 +46,8 @@ export async function createEmail(data: {
     status?: string;
 }) {
     const record = await db.email.create({ data });
-    revalidatePath("/emails");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }
 
 // ─── Update email ─────────────────────────────────────────────────────────────
@@ -56,8 +56,8 @@ export async function updateEmail(
     data: { email?: string; password?: string | null; status?: string }
 ) {
     const record = await db.email.update({ where: { id }, data });
-    revalidatePath("/emails");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }
 
 // ─── Update email status ──────────────────────────────────────────────────────
@@ -66,13 +66,13 @@ export async function updateEmailStatus(
     status: "active" | "paused" | "disabled"
 ) {
     const record = await db.email.update({ where: { id }, data: { status } });
-    revalidatePath("/emails");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }
 
 // ─── Delete email ─────────────────────────────────────────────────────────────
 export async function deleteEmail(id: string) {
     const record = await db.email.delete({ where: { id } });
-    revalidatePath("/emails");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }

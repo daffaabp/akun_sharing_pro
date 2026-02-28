@@ -45,8 +45,8 @@ export async function createService(data: {
     status?: string;
 }) {
     const record = await db.service.create({ data });
-    revalidatePath("/services");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }
 
 // ─── Update service ───────────────────────────────────────────────────────────
@@ -61,8 +61,8 @@ export async function updateService(
     }
 ) {
     const record = await db.service.update({ where: { id }, data });
-    revalidatePath("/services");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }
 
 // ─── Update service status ────────────────────────────────────────────────────
@@ -71,13 +71,13 @@ export async function updateServiceStatus(
     status: "active" | "maintenance" | "inactive"
 ) {
     const record = await db.service.update({ where: { id }, data: { status } });
-    revalidatePath("/services");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }
 
 // ─── Delete service ───────────────────────────────────────────────────────────
 export async function deleteService(id: string) {
     const record = await db.service.delete({ where: { id } });
-    revalidatePath("/services");
-    return record;
+    revalidatePath("/", "layout");
+return record;
 }

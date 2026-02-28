@@ -9,6 +9,7 @@ import { Suspense } from "react";
 
 // Prevent static pre-rendering at build time (requires DB access)
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function PoolsPage({
     searchParams,

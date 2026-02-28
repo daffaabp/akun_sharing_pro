@@ -1,0 +1,392 @@
+diff --git a/src/app/(dashboard)/emails/[id]/page.tsx b/src/app/(dashboard)/emails/[id]/page.tsx
+index 63df77b..229b108 100644
+--- a/src/app/(dashboard)/emails/[id]/page.tsx
++++ b/src/app/(dashboard)/emails/[id]/page.tsx
+@@ -6,6 +6,7 @@ import { ChevronLeft, Mail, Lock, Calendar, CheckCircle2, Clock, XCircle } from
+ 
+ // Prevent static pre-rendering at build time (requires DB access)
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ // Infer the return type of the getEmailById function's pool include
+ type EmailPool = Prisma.PoolGetPayload<{
+diff --git a/src/app/(dashboard)/emails/page.tsx b/src/app/(dashboard)/emails/page.tsx
+index ddd8be5..8c30fa4 100644
+--- a/src/app/(dashboard)/emails/page.tsx
++++ b/src/app/(dashboard)/emails/page.tsx
+@@ -4,6 +4,7 @@ import { EmailsTable } from "@/components/emails/emails-table";
+ 
+ // Prevent static pre-rendering at build time (requires DB access)
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ export default async function EmailsPage() {
+     let emails: Awaited<ReturnType<typeof getAllEmails>> = [];
+diff --git a/src/app/(dashboard)/page.tsx b/src/app/(dashboard)/page.tsx
+index d1afef7..6218d26 100644
+--- a/src/app/(dashboard)/page.tsx
++++ b/src/app/(dashboard)/page.tsx
+@@ -3,6 +3,7 @@ import { OverviewChart } from "@/components/dashboard/overview-chart";
+ import { Users, LayoutGrid, Layers, TrendingUp } from "lucide-react";
+ 
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ export default async function DashboardHomePage() {
+     const stats = await getDashboardStats();
+diff --git a/src/app/(dashboard)/pools/[id]/page.tsx b/src/app/(dashboard)/pools/[id]/page.tsx
+index 61baa77..ff0b2f5 100644
+--- a/src/app/(dashboard)/pools/[id]/page.tsx
++++ b/src/app/(dashboard)/pools/[id]/page.tsx
+@@ -8,6 +8,7 @@ import { ActivateButton } from "@/components/pools/activate-button";
+ 
+ // Prevent static pre-rendering at build time (requires DB access)
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ interface Props {
+     params: { id: string };
+diff --git a/src/app/(dashboard)/pools/page.tsx b/src/app/(dashboard)/pools/page.tsx
+index 3fe4514..5e8844c 100644
+--- a/src/app/(dashboard)/pools/page.tsx
++++ b/src/app/(dashboard)/pools/page.tsx
+@@ -9,6 +9,7 @@ import { Suspense } from "react";
+ 
+ // Prevent static pre-rendering at build time (requires DB access)
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ export default async function PoolsPage({
+     searchParams,
+diff --git a/src/app/(dashboard)/services/page.tsx b/src/app/(dashboard)/services/page.tsx
+index 9afb935..c721f14 100644
+--- a/src/app/(dashboard)/services/page.tsx
++++ b/src/app/(dashboard)/services/page.tsx
+@@ -4,6 +4,7 @@ import { ServicesTable } from "@/components/services/services-table";
+ 
+ // Prevent static pre-rendering at build time (requires DB access)
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ export default async function ServicesPage() {
+     let services: Awaited<ReturnType<typeof getAllServices>> = [];
+diff --git a/src/app/(dashboard)/users/page.tsx b/src/app/(dashboard)/users/page.tsx
+index c8257dd..0c84182 100644
+--- a/src/app/(dashboard)/users/page.tsx
++++ b/src/app/(dashboard)/users/page.tsx
+@@ -4,6 +4,7 @@ import { UsersClientView } from "@/components/users/users-client-view";
+ 
+ // Prevent static pre-rendering at build time (requires DB access)
+ export const dynamic = "force-dynamic";
++export const revalidate = 0;
+ 
+ export default async function UsersPage() {
+     let members = [] as Awaited<ReturnType<typeof getAllMembers>>;
+diff --git a/src/app/actions/emails.ts b/src/app/actions/emails.ts
+index 52c7b20..8e951e9 100644
+--- a/src/app/actions/emails.ts
++++ b/src/app/actions/emails.ts
+@@ -46,8 +46,8 @@ export async function createEmail(data: {
+     status?: string;
+ }) {
+     const record = await db.email.create({ data });
+-    revalidatePath("/emails");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+ 
+ // ─── Update email ─────────────────────────────────────────────────────────────
+@@ -56,8 +56,8 @@ export async function updateEmail(
+     data: { email?: string; password?: string | null; status?: string }
+ ) {
+     const record = await db.email.update({ where: { id }, data });
+-    revalidatePath("/emails");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+ 
+ // ─── Update email status ──────────────────────────────────────────────────────
+@@ -66,13 +66,13 @@ export async function updateEmailStatus(
+     status: "active" | "paused" | "disabled"
+ ) {
+     const record = await db.email.update({ where: { id }, data: { status } });
+-    revalidatePath("/emails");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+ 
+ // ─── Delete email ─────────────────────────────────────────────────────────────
+ export async function deleteEmail(id: string) {
+     const record = await db.email.delete({ where: { id } });
+-    revalidatePath("/emails");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+diff --git a/src/app/actions/members.ts b/src/app/actions/members.ts
+index 9be1a4f..42ad8bf 100644
+--- a/src/app/actions/members.ts
++++ b/src/app/actions/members.ts
+@@ -55,7 +55,7 @@ export async function createMember(data: {
+             email: data.email ?? null,
+         }
+     });
+-    revalidatePath("/users");
++    revalidatePath("/", "layout");
+     return record;
+ }
+ 
+@@ -68,14 +68,14 @@ export async function updateMember(
+         data.phone = formatWhatsAppNumber(data.phone) || "";
+     }
+     const record = await db.member.update({ where: { id }, data });
+-    revalidatePath("/users");
++    revalidatePath("/", "layout");
+     return record;
+ }
+ 
+ // ─── Delete member ─────────────────────────────────────────────────────────────
+ export async function deleteMember(id: string) {
+     const record = await db.member.delete({ where: { id } });
+-    revalidatePath("/users");
++    revalidatePath("/", "layout");
+     return record;
+ }
+ 
+@@ -84,8 +84,7 @@ export async function assignMemberToPool(memberId: string, poolId: string) {
+     const record = await db.poolSeat.create({
+         data: { memberId, poolId },
+     });
+-    revalidatePath("/users");
+-    revalidatePath("/pools");
++    revalidatePath("/", "layout");
+     return record;
+ }
+ 
+@@ -104,12 +103,12 @@ export async function getOpenPools() {
+ }
+ 
+ // ─── Update member phone inline ───────────────────────────────────────────────
+-export async function updateMemberPhoneInline(memberId: string, phone: string | null, poolId: string) {
++export async function updateMemberPhoneInline(memberId: string, phone: string | null) {
+     const record = await db.member.update({
+         where: { id: memberId },
+         data: { phone },
+     });
+-    revalidatePath(`/pools/${poolId}`);
++    revalidatePath("/", "layout");
+     return record;
+ }
+ 
+@@ -158,7 +157,7 @@ export async function processFollowUpCancel(seatId: string) {
+         where: { id: seatId },
+         data: { status: "CANCELED" }
+     });
+-    revalidatePath("/users");
++    revalidatePath("/", "layout");
+     return record;
+ }
+ 
+@@ -186,9 +185,6 @@ export async function processFollowUpRenew(
+     });
+ 
+     // 3. Trigger cascade ui refresh
+-    revalidatePath("/users");
+-    revalidatePath("/pools");
+-    revalidatePath(`/pools/${newPoolId}`);
+-
++    revalidatePath("/", "layout");
+     return newRecord;
+ }
+diff --git a/src/app/actions/pools.ts b/src/app/actions/pools.ts
+index d49d1e1..cdb73be 100644
+--- a/src/app/actions/pools.ts
++++ b/src/app/actions/pools.ts
+@@ -104,8 +104,8 @@ export async function createPool(data: {
+         },
+     });
+ 
+-    revalidatePath("/pools");
+-    return pool;
++    revalidatePath("/", "layout");
++return pool;
+ }
+ 
+ // ─── 2.3 Member: Join a pool ──────────────────────────────────────────────────
+@@ -135,8 +135,8 @@ export async function joinPool(poolId: string, memberId: string) {
+         });
+     }
+ 
+-    revalidatePath("/pools");
+-    return seat;
++    revalidatePath("/", "layout");
++return seat;
+ }
+ 
+ // ─── 2.4 Admin: Activate a READY pool  ───────────────────────────────────────
+@@ -181,8 +181,8 @@ export async function activatePool(
+         },
+     });
+ 
+-    revalidatePath("/pools");
+-    return { pool: updatedPool };
++    revalidatePath("/", "layout");
++return { pool: updatedPool };
+ }
+ 
+ // ─── 2.1 Admin: Add a member to a pool (upsert by phone) ─────────────────────
+@@ -231,16 +231,15 @@ export async function addMemberToPool(
+         await db.pool.update({ where: { id: poolId }, data: { status: "READY" } });
+     }
+ 
+-    revalidatePath(`/pools/${poolId}`);
+-    revalidatePath("/pools");
+-    return seat;
++    revalidatePath("/", "layout");
++return seat;
+ }
+ 
+ // ─── 2.2 Admin: Remove a seat ─────────────────────────────────────────────────
+ export async function removeSeat(seatId: string) {
+     const seat = await db.poolSeat.delete({ where: { id: seatId } });
+-    revalidatePath("/pools");
+-    return seat;
++    revalidatePath("/", "layout");
++return seat;
+ }
+ 
+ // ─── 2.3 Admin: Update payment status on a seat ───────────────────────────────
+@@ -252,8 +251,8 @@ export async function updateSeatPayment(
+         where: { id: seatId },
+         data: { paymentStatus },
+     });
+-    revalidatePath("/pools");
+-    return seat;
++    revalidatePath("/", "layout");
++return seat;
+ }
+ 
+ // ─── 2.4 Admin: Get all ACTIVE pools with subscription ────────────────────────
+@@ -323,9 +322,8 @@ export async function editPool(
+         },
+     });
+ 
+-    revalidatePath("/pools");
+-    revalidatePath(`/pools/${id}`);
+-    return updatedPool;
++    revalidatePath("/", "layout");
++return updatedPool;
+ }
+ 
+ // ─── Admin: Delete a Pool ─────────────────────────────────────────────────────
+@@ -347,10 +345,8 @@ export async function deletePool(id: string) {
+         where: { id },
+     });
+ 
+-    revalidatePath("/pools");
+-    revalidatePath("/users");
+-
+-    return deletedPool;
++    revalidatePath("/", "layout");
++return deletedPool;
+ }
+ 
+ // ─── Admin: Mark Pool as BANNED ───────────────────────────────────────────────
+@@ -360,8 +356,6 @@ export async function markPoolAsBanned(id: string) {
+         data: { status: "BANNED" }
+     });
+ 
+-    revalidatePath("/pools");
+-    revalidatePath(`/pools/${id}`);
+-
+-    return updatedPool;
++    revalidatePath("/", "layout");
++return updatedPool;
+ }
+diff --git a/src/app/actions/services.ts b/src/app/actions/services.ts
+index 3808317..7d973fb 100644
+--- a/src/app/actions/services.ts
++++ b/src/app/actions/services.ts
+@@ -45,8 +45,8 @@ export async function createService(data: {
+     status?: string;
+ }) {
+     const record = await db.service.create({ data });
+-    revalidatePath("/services");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+ 
+ // ─── Update service ───────────────────────────────────────────────────────────
+@@ -61,8 +61,8 @@ export async function updateService(
+     }
+ ) {
+     const record = await db.service.update({ where: { id }, data });
+-    revalidatePath("/services");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+ 
+ // ─── Update service status ────────────────────────────────────────────────────
+@@ -71,13 +71,13 @@ export async function updateServiceStatus(
+     status: "active" | "maintenance" | "inactive"
+ ) {
+     const record = await db.service.update({ where: { id }, data: { status } });
+-    revalidatePath("/services");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+ 
+ // ─── Delete service ───────────────────────────────────────────────────────────
+ export async function deleteService(id: string) {
+     const record = await db.service.delete({ where: { id } });
+-    revalidatePath("/services");
+-    return record;
++    revalidatePath("/", "layout");
++return record;
+ }
+diff --git a/src/components/pools/seats-table.tsx b/src/components/pools/seats-table.tsx
+index 0e4e744..481948b 100644
+--- a/src/components/pools/seats-table.tsx
++++ b/src/components/pools/seats-table.tsx
+@@ -36,7 +36,7 @@ const PAYMENT_BADGE: Record<string, React.ReactNode> = {
+     ),
+ };
+ 
+-function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string }) {
++function PhoneCell({ member }: { member: Seat["member"] }) {
+     const [isEditing, setIsEditing] = useState(false);
+     const [phone, setPhone] = useState(member?.phone || "");
+     const [pending, startTransition] = useTransition();
+@@ -55,7 +55,7 @@ function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string
+         // kalau sedang loading api
+         startTransition(async () => {
+             try {
+-                await updateMemberPhoneInline(member.id, parsedData, poolId);
++                await updateMemberPhoneInline(member.id, parsedData);
+                 toast.success("Phone number formatted & saved");
+             } catch {
+                 toast.error("Failed to update phone number");
+@@ -102,7 +102,7 @@ function PhoneCell({ member, poolId }: { member: Seat["member"], poolId: string
+     );
+ }
+ 
+-export function SeatsTable({ seats, poolId }: { seats: Seat[]; poolId: string }) {
++export function SeatsTable({ seats }: { seats: Seat[]; poolId: string }) {
+     const [pending, startTransition] = useTransition();
+     const [loadingId, setLoadingId] = useState<string | null>(null);
+ 
+@@ -202,7 +202,7 @@ export function SeatsTable({ seats, poolId }: { seats: Seat[]; poolId: string })
+                                 </div>
+                             </td>
+                             <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+-                                <PhoneCell member={seat.member} poolId={poolId} />
++                                <PhoneCell member={seat.member} />
+                             </td>
+                             <td className="px-6 py-4 whitespace-nowrap">
+                                 <button

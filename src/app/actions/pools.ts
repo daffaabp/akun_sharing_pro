@@ -104,8 +104,8 @@ export async function createPool(data: {
         },
     });
 
-    revalidatePath("/pools");
-    return pool;
+    revalidatePath("/", "layout");
+return pool;
 }
 
 // ─── 2.3 Member: Join a pool ──────────────────────────────────────────────────
@@ -135,8 +135,8 @@ export async function joinPool(poolId: string, memberId: string) {
         });
     }
 
-    revalidatePath("/pools");
-    return seat;
+    revalidatePath("/", "layout");
+return seat;
 }
 
 // ─── 2.4 Admin: Activate a READY pool  ───────────────────────────────────────
@@ -181,8 +181,8 @@ export async function activatePool(
         },
     });
 
-    revalidatePath("/pools");
-    return { pool: updatedPool };
+    revalidatePath("/", "layout");
+return { pool: updatedPool };
 }
 
 // ─── 2.1 Admin: Add a member to a pool (upsert by phone) ─────────────────────
@@ -231,16 +231,15 @@ export async function addMemberToPool(
         await db.pool.update({ where: { id: poolId }, data: { status: "READY" } });
     }
 
-    revalidatePath(`/pools/${poolId}`);
-    revalidatePath("/pools");
-    return seat;
+    revalidatePath("/", "layout");
+return seat;
 }
 
 // ─── 2.2 Admin: Remove a seat ─────────────────────────────────────────────────
 export async function removeSeat(seatId: string) {
     const seat = await db.poolSeat.delete({ where: { id: seatId } });
-    revalidatePath("/pools");
-    return seat;
+    revalidatePath("/", "layout");
+return seat;
 }
 
 // ─── 2.3 Admin: Update payment status on a seat ───────────────────────────────
@@ -252,8 +251,8 @@ export async function updateSeatPayment(
         where: { id: seatId },
         data: { paymentStatus },
     });
-    revalidatePath("/pools");
-    return seat;
+    revalidatePath("/", "layout");
+return seat;
 }
 
 // ─── 2.4 Admin: Get all ACTIVE pools with subscription ────────────────────────
@@ -323,9 +322,8 @@ export async function editPool(
         },
     });
 
-    revalidatePath("/pools");
-    revalidatePath(`/pools/${id}`);
-    return updatedPool;
+    revalidatePath("/", "layout");
+return updatedPool;
 }
 
 // ─── Admin: Delete a Pool ─────────────────────────────────────────────────────
@@ -347,10 +345,8 @@ export async function deletePool(id: string) {
         where: { id },
     });
 
-    revalidatePath("/pools");
-    revalidatePath("/users");
-
-    return deletedPool;
+    revalidatePath("/", "layout");
+return deletedPool;
 }
 
 // ─── Admin: Mark Pool as BANNED ───────────────────────────────────────────────
@@ -360,8 +356,6 @@ export async function markPoolAsBanned(id: string) {
         data: { status: "BANNED" }
     });
 
-    revalidatePath("/pools");
-    revalidatePath(`/pools/${id}`);
-
-    return updatedPool;
+    revalidatePath("/", "layout");
+return updatedPool;
 }

@@ -55,7 +55,7 @@ export async function createMember(data: {
             email: data.email ?? null,
         }
     });
-    revalidatePath("/users");
+    revalidatePath("/", "layout");
     return record;
 }
 
@@ -68,14 +68,14 @@ export async function updateMember(
         data.phone = formatWhatsAppNumber(data.phone) || "";
     }
     const record = await db.member.update({ where: { id }, data });
-    revalidatePath("/users");
+    revalidatePath("/", "layout");
     return record;
 }
 
 // ─── Delete member ─────────────────────────────────────────────────────────────
 export async function deleteMember(id: string) {
     const record = await db.member.delete({ where: { id } });
-    revalidatePath("/users");
+    revalidatePath("/", "layout");
     return record;
 }
 
@@ -84,8 +84,7 @@ export async function assignMemberToPool(memberId: string, poolId: string) {
     const record = await db.poolSeat.create({
         data: { memberId, poolId },
     });
-    revalidatePath("/users");
-    revalidatePath("/pools");
+    revalidatePath("/", "layout");
     return record;
 }
 
@@ -104,12 +103,12 @@ export async function getOpenPools() {
 }
 
 // ─── Update member phone inline ───────────────────────────────────────────────
-export async function updateMemberPhoneInline(memberId: string, phone: string | null, poolId: string) {
+export async function updateMemberPhoneInline(memberId: string, phone: string | null) {
     const record = await db.member.update({
         where: { id: memberId },
         data: { phone },
     });
-    revalidatePath(`/pools/${poolId}`);
+    revalidatePath("/", "layout");
     return record;
 }
 
@@ -158,7 +157,7 @@ export async function processFollowUpCancel(seatId: string) {
         where: { id: seatId },
         data: { status: "CANCELED" }
     });
-    revalidatePath("/users");
+    revalidatePath("/", "layout");
     return record;
 }
 
@@ -186,9 +185,6 @@ export async function processFollowUpRenew(
     });
 
     // 3. Trigger cascade ui refresh
-    revalidatePath("/users");
-    revalidatePath("/pools");
-    revalidatePath(`/pools/${newPoolId}`);
-
+    revalidatePath("/", "layout");
     return newRecord;
 }
