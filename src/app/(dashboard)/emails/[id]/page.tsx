@@ -8,10 +8,7 @@ import { ChevronLeft, Mail, Lock, Calendar, CheckCircle2, Clock, XCircle } from 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Return empty array so Next.js skips pre-rendering during build (avoids DB access at build time)
-export async function generateStaticParams() {
-    return [];
-}
+
 
 // Infer the return type of the getEmailById function's pool include
 type EmailPool = Prisma.PoolGetPayload<{
